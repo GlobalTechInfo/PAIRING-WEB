@@ -5,19 +5,16 @@ let router = express.Router();
 const pino = require("pino");
 const { Boom } = require("@hapi/boom");
 const MESSAGE = process.env.MESSAGE || `
-*SESSION GENERATED SUCCESSFULLY* ✅
 
-*Gɪᴠᴇ ᴀ ꜱᴛᴀʀ ᴛᴏ ʀᴇᴘᴏ ꜰᴏʀ ᴄᴏᴜʀᴀɢᴇ* 🌟
-https://github.com/GuhailTechInfo/MEGA-AI
+*EF-PRIME AUTHENTICATION MATRIX ACTIVATED*
 
-*Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ ꜰᴏʀ ϙᴜᴇʀʏ* 💭
-https://t.me/Global_TechInfo
-https://whatsapp.com/channel/0029VagJIAr3bbVBCpEkAM07
+AUTOBOTS, YOUR SESSION ID HAS BEEN SECURED.
+KEEP THIS CODE CONFIDENTIAL - DO NOT SHARE WITH ANY DECEPTICONS.
 
-*Yᴏᴜ-ᴛᴜʙᴇ ᴛᴜᴛᴏʀɪᴀʟꜱ* 🪄 
-https://youtube.com/GlobalTechInfo
+> CYBERTRON COMMAND CENTER
+https://whatsapp.com/channel/0029Vb5xaN6Chq6HbdmixE44
 
-*MEGA-AI--WHATSAPP* 🥀
+"FREEDOM IS THE RIGHT OF ALL SENTIENT BEINGS."
 `;
 
 const uploadToPastebin = require('./Paste');  // Assuming you have a function to upload to Pastebin
@@ -76,9 +73,11 @@ router.get('/', async (req, res) => {
                         const credsFilePath = auth_path + 'creds.json';
                         const pastebinUrl = await uploadToPastebin(credsFilePath, 'creds.json', 'json', '1');
 
-                        const Scan_Id = pastebinUrl;  // Use the Pastebin URL as the session ID
+                        // Format the session ID as requested
+                        const formattedSessionId = `EF-PRIME~${pastebinUrl}`;
 
-                        let msgsss = await Smd.sendMessage(user, { text: Scan_Id });
+                        // Send the formatted session ID to the user
+                        let msgsss = await Smd.sendMessage(user, { text: formattedSessionId });
                         await Smd.sendMessage(user, { text: MESSAGE }, { quoted: msgsss });
                         await delay(1000);
                         try { await fs.emptyDirSync(__dirname + '/auth_info_baileys'); } catch (e) {}
