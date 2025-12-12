@@ -1,10 +1,14 @@
-const express = require('express');
-const fs = require('fs-extra');
-const { exec } = require("child_process");
-let router = express.Router();
-const pino = require("pino");
-const { Boom } = require("@hapi/boom");
-const MESSAGE = process.env.MESSAGE || `
+import express from 'express';
+import fs from 'fs-extra';
+import pino from 'pino';
+import pn from 'awesome-phonenumber';
+import { exec } from 'child_process';
+import { makeWASocket, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers, jidNormalizedUser, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
+import uploadToPastebin from './Paste.js'; // Your Pastebin function
+
+const router = express.Router();
+
+const MESSAGE = `
 *SESSION GENERATED SUCCESSFULLY* ✅
 
 *Gɪᴠᴇ ᴀ ꜱᴛᴀʀ ᴛᴏ ʀᴇᴘᴏ ꜰᴏʀ ᴄᴏᴜʀᴀɢᴇ* 🌟
@@ -20,111 +24,124 @@ https://youtube.com/GlobalTechInfo
 *MEGA-AI--WHATSAPP* 🥀
 `;
 
-const uploadToPastebin = require('./Paste');  // Assuming you have a function to upload to Pastebin
-const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    delay,
-    makeCacheableSignalKeyStore,
-    Browsers,
-    DisconnectReason
-} = require("@whiskeysockets/baileys");
-
-// Ensure the directory is empty when the app starts
-if (fs.existsSync('./auth_info_baileys')) {
-    fs.emptyDirSync(__dirname + '/auth_info_baileys');
+// Remove file/directory
+async function removeFile(FilePath) {
+    try {
+        if (!fs.existsSync(FilePath)) return false;
+        await fs.remove(FilePath);
+        return true;
+    } catch (e) {
+        console.error('Error removing file:', e);
+        return false;
+    }
 }
 
 router.get('/', async (req, res) => {
     let num = req.query.number;
+    const dirs = './auth_info_baileys';
 
-    async function SUHAIL() {
-        const { state, saveCreds } = await useMultiFileAuthState(`./auth_info_baileys`);
+    await removeFile(dirs);
+
+    // Validate phone number
+    num = num.replace(/[^0-9]/g, '');
+    const phone = pn('+' + num);
+    if (!phone.isValid()) {
+        if (!res.headersSent) {
+            return res.status(400).send({ code: 'Invalid phone number. Use full international format without + or spaces.' });
+        }
+        return;
+    }
+    num = phone.getNumber('e164').replace('+', '');
+
+    async function initiateSession() {
         try {
-            let Smd = makeWASocket({
+            const { state, saveCreds } = await useMultiFileAuthState(dirs);
+            const { version } = await fetchLatestBaileysVersion();
+
+            const sock = makeWASocket({
+                version,
                 auth: {
                     creds: state.creds,
                     keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
                 },
                 printQRInTerminal: false,
                 logger: pino({ level: "fatal" }).child({ level: "fatal" }),
-                browser: Browsers.macOS("Safari"),
+                browser: Browsers.windows('Chrome'),
+                markOnlineOnConnect: false,
             });
 
-            if (!Smd.authState.creds.registered) {
-                await delay(1500);
-                num = num.replace(/[^0-9]/g, '');
-                const code = await Smd.requestPairingCode(num);
-                if (!res.headersSent) {
-                    await res.send({ code });
-                }
-            }
+            sock.ev.on('connection.update', async (update) => {
+                const { connection, lastDisconnect, isNewLogin } = update;
 
-            Smd.ev.on('creds.update', saveCreds);
-            Smd.ev.on("connection.update", async (s) => {
-                const { connection, lastDisconnect } = s;
-
-                if (connection === "open") {
+                if (connection === 'open') {
                     try {
-                        await delay(10000);
-                        if (fs.existsSync('./auth_info_baileys/creds.json'));
+                        const credsFile = dirs + '/creds.json';
+                        if (fs.existsSync(credsFile)) {
+                            const pastebinUrl = await uploadToPastebin(credsFile, 'creds.json', 'json', '1');
+                            console.log('📄 Session uploaded to Pastebin:', pastebinUrl);
 
-                        const auth_path = './auth_info_baileys/';
-                        let user = Smd.user.id;
+                            const userJid = jidNormalizedUser(num + '@s.whatsapp.net');
+                            const msg = await sock.sendMessage(userJid, { text: `📄 Your session ID: ${pastebinUrl}` });
+                            await sock.sendMessage(userJid, { text: MESSAGE, quoted: msg });
 
-                        // Upload the creds.json to Pastebin directly
-                        const credsFilePath = auth_path + 'creds.json';
-                        const pastebinUrl = await uploadToPastebin(credsFilePath, 'creds.json', 'json', '1');
-
-                        const Scan_Id = pastebinUrl;  // Use the Pastebin URL as the session ID
-
-                        let msgsss = await Smd.sendMessage(user, { text: Scan_Id });
-                        await Smd.sendMessage(user, { text: MESSAGE }, { quoted: msgsss });
-                        await delay(1000);
-                        try { await fs.emptyDirSync(__dirname + '/auth_info_baileys'); } catch (e) {}
-
-                    } catch (e) {
-                        console.log("Error during file upload or message send: ", e);
+                            await delay(1000);
+                            await removeFile(dirs);
+                        }
+                    } catch (err) {
+                        console.error('Error sending session:', err);
+                        await removeFile(dirs);
                     }
-
-                    await delay(100);
-                    await fs.emptyDirSync(__dirname + '/auth_info_baileys');
                 }
 
-                // Handle connection closures
-                if (connection === "close") {
-                    let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
-                    if (reason === DisconnectReason.connectionClosed) {
-                        console.log("Connection closed!");
-                    } else if (reason === DisconnectReason.connectionLost) {
-                        console.log("Connection Lost from Server!");
-                    } else if (reason === DisconnectReason.restartRequired) {
-                        console.log("Restart Required, Restarting...");
-                        SUHAIL().catch(err => console.log(err));
-                    } else if (reason === DisconnectReason.timedOut) {
-                        console.log("Connection TimedOut!");
-                    } else {
-                        console.log('Connection closed with bot. Please run again.');
-                        console.log(reason);
-                        await delay(5000);
-                        exec('pm2 restart qasim');
+                if (isNewLogin) console.log('🔐 New login via pair code');
+
+                if (connection === 'close') {
+                    const statusCode = lastDisconnect?.error?.output?.statusCode;
+                    if (statusCode === 401) console.log('❌ Logged out - generate new pair code');
+                    else {
+                        console.log('🔁 Connection closed — restarting...');
+                        initiateSession();
                     }
                 }
             });
 
-        } catch (err) {
-            console.log("Error in SUHAIL function: ", err);
-            exec('pm2 restart qasim');
-            console.log("Service restarted due to error");
-            SUHAIL();
-            await fs.emptyDirSync(__dirname + '/auth_info_baileys');
-            if (!res.headersSent) {
-                await res.send({ code: "Try After Few Minutes" });
+            if (!sock.authState.creds.registered) {
+                await delay(1500);
+                try {
+                    let code = await sock.requestPairingCode(num);
+                    code = code?.match(/.{1,4}/g)?.join('-') || code;
+                    if (!res.headersSent) await res.send({ code });
+                    console.log('📱 Pairing code sent:', code);
+                } catch (error) {
+                    console.error('❌ Error requesting pairing code:', error);
+                    if (!res.headersSent) res.status(503).send({ code: 'Failed to get pairing code' });
+                }
             }
+
+            sock.ev.on('creds.update', saveCreds);
+        } catch (err) {
+            console.error('❌ Error initializing session:', err);
+            await removeFile(dirs);
+            exec('pm2 restart qasim');
+            if (!res.headersSent) res.status(503).send({ code: 'Service Unavailable' });
         }
     }
 
-   return await SUHAIL();
+    await initiateSession();
 });
 
-module.exports = router;
+process.on('uncaughtException', (err) => {
+    const e = String(err);
+    const ignore = [
+        "conflict", "not-authorized", "Socket connection timeout",
+        "rate-overlimit", "Connection Closed", "Timed Out",
+        "Value not found", "Stream Errored", "Stream Errored (restart required)",
+        "statusCode: 515", "statusCode: 503"
+    ];
+    if (!ignore.some(x => e.includes(x))) {
+        console.log('Caught exception:', err);
+        exec('pm2 restart qasim');
+    }
+});
+
+export default router;
