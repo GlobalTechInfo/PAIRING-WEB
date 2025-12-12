@@ -4,7 +4,7 @@ import pino from 'pino';
 import pn from 'awesome-phonenumber';
 import { exec } from 'child_process';
 import { makeWASocket, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers, jidNormalizedUser, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
-import uploadToPastebin from './Paste.js'; // Your Pastebin function
+import uploadToPastebin from './Paste.js';
 
 const router = express.Router();
 
@@ -12,19 +12,17 @@ const MESSAGE = `
 *SESSION GENERATED SUCCESSFULLY* ✅
 
 *Gɪᴠᴇ ᴀ ꜱᴛᴀʀ ᴛᴏ ʀᴇᴘᴏ ꜰᴏʀ ᴄᴏᴜʀᴀɢᴇ* 🌟
-https://github.com/GuhailTechInfo/MEGA-AI
+https://github.com/GlobalTechInfo/MEGA-MD
 
 *Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ ꜰᴏʀ ϙᴜᴇʀʏ* 💭
 https://t.me/Global_TechInfo
 https://whatsapp.com/channel/0029VagJIAr3bbVBCpEkAM07
 
 *Yᴏᴜ-ᴛᴜʙᴇ ᴛᴜᴛᴏʀɪᴀʟꜱ* 🪄 
-https://youtube.com/GlobalTechInfo
+https://youtube.com/@GlobalTechInfo
 
-*MEGA-AI--WHATSAPP* 🥀
+*MEGA-MD--WHATSAPP* 🥀
 `;
-
-// Remove file/directory
 async function removeFile(FilePath) {
     try {
         if (!fs.existsSync(FilePath)) return false;
