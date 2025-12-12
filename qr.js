@@ -13,16 +13,16 @@ const MESSAGE = `
 *SESSION GENERATED SUCCESSFULLY* ✅
 
 *Gɪᴠᴇ ᴀ ꜱᴛᴀʀ ᴛᴏ ʀᴇᴘᴏ ꜰᴏʀ ᴄᴏᴜʀᴀɢᴇ* 🌟
-https://github.com/GuhailTechInfo/MEGA-AI
+https://github.com/GlobalTechInfo/MEGA-MD
 
 *Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ ꜰᴏʀ ϙᴜᴇʀʏ* 💭
 https://t.me/GlobalTechInfo
 https://whatsapp.com/channel/0029VagJIAr3bbVBCpEkAM07
 
 *Yᴏᴜ-ᴛᴜʙᴇ ᴛᴜᴛᴏʀɪᴀʟꜱ* 🪄 
-https://youtube.com/GlobalTechInfo
+https://youtube.com/@GlobalTechInfo
 
-*MEGA-AI--WHATSAPP* 🥀
+*MEGA-MD--WHATSAPP* 🥀
 `;
 
 async function removeFile(FilePath) {
