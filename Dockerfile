@@ -1,5 +1,5 @@
 # Use official Node.js image
-FROM node:20-buster
+FROM node:20-bookworm
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install the application dependencies
-RUN npm install && npm install -g pm2
+RUN npm install
 
 # Copy the rest of the application files into the container
 COPY . .

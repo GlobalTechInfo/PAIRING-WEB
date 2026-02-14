@@ -3,213 +3,578 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pair with Me</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <title>MEGA-MD • Pair Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
   <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: linear-gradient(to bottom, #ffffff, #ebebeb);
-      font-family: Arial, sans-serif;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050508;
+      --surface: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.07);
+      --neon: #00ff88;
+      --neon2: #00cfff;
+      --text: #e8eaf0;
+      --muted: rgba(232,234,240,0.4);
     }
 
-    .container {
+    html { width: 100%; min-height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    .box {
-      width: 300px;
-      height: 320px;
-      padding: 20px;
-      position: relative;
-      text-align: center;
-      background-color: #fff;
-      border-radius: 10px;
-      transform: perspective(1000px) rotateY(0deg);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+      justify-content: center;
       position: relative;
     }
 
-    #text {
-      color: #000; /* Set the text color to black (#000) */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
     }
 
-    .input-container input {
-      color: #000; /* Set the text color to black (#000) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.6;
     }
 
-    .centered-text {
-      color: #000; /* Set the text color to black (#000) */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,255,136,0.1), transparent 70%);
+      top: -200px; left: -200px;
+      animation: drift1 18s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,207,255,0.09), transparent 70%);
+      bottom: -150px; right: -150px;
+      animation: drift2 22s ease-in-out infinite alternate;
+    }
+    .orb-3 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(162,89,255,0.07), transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: drift3 15s ease-in-out infinite alternate;
     }
 
-    .input-container {
+    @keyframes drift1 { to { transform: translate(100px, 80px); } }
+    @keyframes drift2 { to { transform: translate(-80px, -100px); } }
+    @keyframes drift3 { to { transform: translate(-50%, -50%) scale(1.4); } }
+
+    /* ── WRAPPER ── */
+    .wrapper {
+      position: relative;
+      z-index: 2;
       display: flex;
-      background: white;
-      border-radius: 1rem;
-      background: linear-gradient(45deg, #c5c5c5 0%, #ffffff 100%);
-      box-shadow: 20px 20px 20px #d8d8d8, -10px -10px 20px #f8f8f8;
-      padding: 0.3rem;
-      gap: 0.3rem;
-      max-width: 300px; /* Set your desired maximum width */
+      flex-direction: column;
+      align-items: center;
+      padding: clamp(48px, 8vh, 80px) clamp(16px, 4vw, 32px) clamp(48px, 8vh, 80px);
       width: 100%;
+      max-width: 560px;
     }
 
-    .input-container input {
-      border-radius: 0.8rem 0 0 0.8rem;
-      background: #e8e8e8;
-      box-shadow: inset 13px 13px 10px #dcdcdc, inset -13px -13px 10px #f4f4f4;
-      width: 100%;
-      flex-basis: 75%;
-      padding: 1rem;
-      border: none;
-      border-left: 2px solid #4998FF;
-      color: #5e5e5e;
-      transition: all 0.2s ease-in-out;
-    }
-
-    .input-container input:focus {
-      border-left: 2px solid #4998FF;
-      outline: none;
-      box-shadow: inset 13px 13px 10px #BFF0FA, inset -13px -13px 10px #f4f4f4;
-    }
-
-    .input-container button {
-      flex-basis: 25%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #BFF0FA 0%, #4998FF 100%);
-      font-weight: 900;
-      letter-spacing: 0.3rem;
+    .badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      color: white;
-      border: none;
-      width: 100%;
-      border-radius: 0 1rem 1rem 0;
-      transition: all 0.2s ease-in-out;
+      color: var(--neon2);
+      background: rgba(0,207,255,0.08);
+      border: 1px solid rgba(0,207,255,0.2);
+      padding: 6px 18px;
+      border-radius: 100px;
+      margin-bottom: 32px;
+      animation: fadeUp 0.6s ease both;
+      animation-delay: 0.1s;
     }
 
-    .input-container button:hover {
-      background: linear-gradient(135deg, #BFF0FA 0%, #4998ffc4 100%);
-    }
-
-    @media (max-width: 500px) {
-      .input-container {
-        flex-direction: column;
-      }
-
-      .input-container input {
-        border-radius: 0.8rem;
-      }
-
-      .input-container button {
-        padding: 1rem;
-        border-radius: 0.8rem;
-      }
-    }
-
-    .centered-text {
+    .brand {
       text-align: center;
+      margin-bottom: 16px;
+      animation: fadeUp 0.6s ease both;
+      animation-delay: 0.2s;
     }
 
-    @media (max-width: 500px) {
-      .box {
-        width: 90%; 
-      }
+    .brand-name {
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -3px;
+      background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.55) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    @media (max-width: 500px) {
-      .input-container input {
-        border-radius: 0.8rem;
-        width: 80%; 
-      }
+    .brand-name .accent {
+      background: linear-gradient(135deg, var(--neon), var(--neon2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
-      .input-container button {
-        padding: 1rem;
-        border-radius: 0.9rem;
-        width: 100%; 
-      }
+    .brand-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(10px, 2vw, 12px);
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--neon2), transparent);
+      margin: 32px auto;
+      animation: fadeUp 0.6s ease both;
+      animation-delay: 0.3s;
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 32px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      animation: fadeUp 0.6s ease both;
+      animation-delay: 0.4s;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .card-hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+    }
+
+    /* ── INPUT ROW ── */
+    .input-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .input-wrap {
+      position: relative;
+      flex: 1;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--neon2);
+      pointer-events: none;
+      font-weight: 400;
+    }
+
+    .phone-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 14px 34px;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .phone-input::-webkit-outer-spin-button,
+    .phone-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .phone-input::placeholder { color: rgba(232,234,240,0.2); }
+
+    .phone-input:focus {
+      border-color: rgba(0,207,255,0.4);
+      background: rgba(0,207,255,0.04);
+      box-shadow: 0 0 0 3px rgba(0,207,255,0.08);
+    }
+
+    .phone-input.error {
+      border-color: rgba(255,80,80,0.5);
+      background: rgba(255,80,80,0.04);
+    }
+
+    .submit-btn {
+      padding: 14px 22px;
+      background: linear-gradient(135deg, rgba(0,207,255,0.15), rgba(0,207,255,0.08));
+      border: 1px solid rgba(0,207,255,0.3);
+      border-radius: 14px;
+      color: var(--neon2);
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.25s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: rgba(0,207,255,0.18);
+      border-color: rgba(0,207,255,0.5);
+      box-shadow: 0 0 24px rgba(0,207,255,0.12);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── STATUS AREA ── */
+    .status {
+      margin-top: 24px;
+      min-height: 48px;
+    }
+
+    .status-msg {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-msg.error { color: rgba(255,100,100,0.8); }
+    .status-msg.success { color: var(--neon); }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,207,255,0.15);
+      border-top-color: var(--neon2);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── CODE BOX ── */
+    .code-box {
+      margin-top: 24px;
+      background: rgba(0,255,136,0.04);
+      border: 1px solid rgba(0,255,136,0.15);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .code-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .code-value {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(22px, 6vw, 32px);
+      font-weight: 400;
+      letter-spacing: 6px;
+      color: var(--neon);
+      margin-bottom: 16px;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      background: rgba(0,255,136,0.08);
+      border: 1px solid rgba(0,255,136,0.2);
+      border-radius: 100px;
+      color: var(--neon);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(0,255,136,0.14);
+      border-color: rgba(0,255,136,0.35);
+      box-shadow: 0 0 20px rgba(0,255,136,0.1);
+    }
+
+    .copy-btn.copied {
+      color: #fff;
+      background: rgba(0,255,136,0.2);
+      border-color: rgba(0,255,136,0.4);
+    }
+
+    /* ── BACK LINK ── */
+    .back-link {
+      margin-top: 36px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(232,234,240,0.2);
+      letter-spacing: 2px;
+      text-decoration: none;
+      transition: color 0.2s;
+      animation: fadeUp 0.6s ease both;
+      animation-delay: 0.5s;
+    }
+
+    .back-link:hover { color: var(--muted); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 460px) {
+      .input-row { flex-direction: column; }
+      .submit-btn { width: 100%; padding: 14px; }
+      .card { padding: 28px 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="main">
-      <div class="box" id="box">
-        <div id="text">
-          <i class="fa fa-user"></i>
-          <p>
-            <h3 class="centered-text">© GlobalTechInfo</h3>
-            <br>
-            <h6>Enter your number with a country code.</h6>
-            <div class="input-container">
-              <input placeholder="923444844060" type="number" id="number" placeholder="Enter your phone number with a country code" name="">
-              <button id="submit">Submit</button>
-            </div>
-            
-            <a id="waiting-message" class="centered-text" style="display: none;">Please wait for some time</a>
-            <br>
-            <br>
-            <main id="pair"></main>
-          </p>
-        </div>
-      </div>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="wrapper">
+    <div class="badge">🔑 Pair Code</div>
+
+    <div class="brand">
+      <div class="brand-name">MEGA<span class="accent">-MD</span></div>
+      <div class="brand-sub">WhatsApp Bot Platform</div>
     </div>
+
+    <div class="divider"></div>
+
+    <div class="card">
+      <div class="card-title">Link your device</div>
+      <div class="card-hint">Enter your phone number with country code (no + or spaces)</div>
+
+      <div class="input-row">
+        <div class="input-wrap">
+          <span class="input-prefix">+</span>
+          <input
+            class="phone-input"
+            id="number"
+            type="number"
+            placeholder="923444844060"
+            autocomplete="tel"
+          >
+        </div>
+        <button class="submit-btn" id="submit">Get Code</button>
+      </div>
+
+      <div class="status" id="status"></div>
+      <div id="code-area"></div>
+    </div>
+
+    <a class="back-link" href="/">← back to home</a>
   </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
   <script>
-    let a = document.getElementById("pair");
-    let b = document.getElementById("submit");
-    let c = document.getElementById("number");
-    let box = document.getElementById("box");
+    const numInput  = document.getElementById('number');
+    const submitBtn = document.getElementById('submit');
+    const statusEl  = document.getElementById('status');
+    const codeArea  = document.getElementById('code-area');
 
-    async function Copy() {
-      let text = document.getElementById("copy").innerText;
-      let obj = document.getElementById("copy");
-      await navigator.clipboard.writeText(obj.innerText.replace('CODE: ', ''));
-      obj.innerText = "COPIED";
-      obj.style = "color:blue;font-weight:bold";
-      obj.size = "5";
-      setTimeout(() => {
-        obj.innerText = text;
-        obj.style = "color:black;font-weight-bold";
-        obj.size = "5";
-      }, 500);
+    function setStatus(msg, type = '') {
+      const icon = type === 'loading'
+        ? '<div class="spinner"></div>'
+        : type === 'error' ? '✕' : type === 'success' ? '✓' : '';
+      statusEl.innerHTML = msg
+        ? `<div class="status-msg ${type}">${icon}<span>${msg}</span></div>`
+        : '';
     }
 
-    b.addEventListener("click", async (e) => {
-      e.preventDefault();
-      if (!c.value) {
-        a.innerHTML = '<a style="color:black;font-weight:bold">Enter your WhatsApp number with a country code</a><br><br>';
-      } else if (c.value.replace(/[^0-9]/g, "").length < 11) {
-        a.innerHTML = '<a style="color:black;font-weight:bold">Invalid number format</a><br><br>';
-      } else {
-        const bc = c.value.replace(/[^0-9]/g, "");
-        let bb = "";
-        let bbc = "";
-        const cc = bc.split('');
-        cc.map(a => {
-          bbc += a;
-          if (bbc.length == 3) {
-            bb += " " + a;
-          } else if (bbc.length == 8) {
-            bb += " " + a;
-          } else {
-            bb += a;
-          }
-        });
-        c.type = "text";
-        c.value = "+" + bb;
-        c.style = "color:black;font-size:20px";
-        a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
-        let { data } = await axios(`/code?number=${bc}`);
-        let code = data.code || "Service Unavailable";
-        a.innerHTML = '<font id="copy" onclick="Copy()" style="color:red;font-weight:bold" size="5">CODE: <span style="color:black;font-weight:bold">' + code + '</span></font><br><br><br>';
+    function showCode(code) {
+      codeArea.innerHTML = `
+        <div class="code-box">
+          <div class="code-label">Your Pair Code</div>
+          <div class="code-value" id="code-val">${code}</div>
+          <button class="copy-btn" id="copy-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy Code
+          </button>
+        </div>`;
+
+      document.getElementById('copy-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('copy-btn');
+        const val = document.getElementById('code-val').innerText;
+        try {
+          await navigator.clipboard.writeText(val);
+          btn.classList.add('copied');
+          btn.innerHTML = `✓ &nbsp;Copied!`;
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Code`;
+          }, 2000);
+        } catch (e) {}
+      });
+    }
+
+    submitBtn.addEventListener('click', async () => {
+      const raw = numInput.value.replace(/[^0-9]/g, '');
+      codeArea.innerHTML = '';
+
+      if (!raw) {
+        numInput.classList.add('error');
+        setStatus('Phone number is required', 'error');
+        return;
+      }
+
+      if (raw.length < 10) {
+        numInput.classList.add('error');
+        setStatus('Invalid number — include country code', 'error');
+        return;
+      }
+
+      numInput.classList.remove('error');
+      submitBtn.disabled = true;
+      setStatus('Requesting pair code…', 'loading');
+
+      try {
+        const { data } = await axios(`/code?number=${raw}`);
+        const code = data.code || 'Service Unavailable';
+        setStatus('');
+        showCode(code);
+      } catch (err) {
+        setStatus('Failed to get pair code. Try again.', 'error');
+      } finally {
+        submitBtn.disabled = false;
       }
     });
+
+    numInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitBtn.click();
+    });
+
+    numInput.addEventListener('input', () => numInput.classList.remove('error'));
+
+    // ── CANVAS ──
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, nodes = [], animId;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function initNodes() {
+      nodes = [];
+      const count = Math.min(Math.floor((W * H) / 18000), 50);
+      for (let i = 0; i < count; i++) {
+        nodes.push({
+          x: Math.random() * W, y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25,
+          r: Math.random() * 1.5 + 0.5, opacity: Math.random() * 0.35 + 0.1
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        a.x += a.vx; a.y += a.vy;
+        if (a.x < 0 || a.x > W) a.vx *= -1;
+        if (a.y < 0 || a.y > H) a.vy *= -1;
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 140) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(0,207,255,${(1 - dist / 140) * 0.1})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,207,255,${a.opacity})`;
+        ctx.fill();
+      }
+      animId = requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => { cancelAnimationFrame(animId); resize(); initNodes(); draw(); });
+    resize(); initNodes(); draw();
   </script>
 </body>
 </html>
