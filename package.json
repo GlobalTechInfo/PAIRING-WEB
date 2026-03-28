@@ -5,32 +5,56 @@
   "description": "A multi-functional WhatsApp bot Pairing Web and QR Scanner.",
   "main": "index.js",
   "engines": {
-  "node": ">=20.0.0"
-    },
+    "node": ">=20.0.0"
+  },
   "scripts": {
-  "start": "node index.js",
-  "dev": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [
-  "baileysQr", "MdLogin", "MEGA-AI", "whatsapp-bot", "BotWhatsapp", "whatsapp-web", "whatsapp", "session", "pair-code", "express-pairing", "whatsappbot", "express-session", "whatsapp-api", "pairing", "baileys-md", "baileys-bot",
-  "whatsappLogin", "adiwajshing/baileys", "baileys-md-qr", "multi-device-qr", "whiskey sockets/baileys", "md-pair", "bot-pair", "baileysQrScanner", "botpairing", "WhatsAppPairing", "LinkDevice"
+    "baileysQr",
+    "MdLogin",
+    "MEGA-AI",
+    "whatsapp-bot",
+    "BotWhatsapp",
+    "whatsapp-web",
+    "whatsapp",
+    "session",
+    "pair-code",
+    "express-pairing",
+    "whatsappbot",
+    "express-session",
+    "whatsapp-api",
+    "pairing",
+    "baileys-md",
+    "baileys-bot",
+    "whatsappLogin",
+    "adiwajshing/baileys",
+    "baileys-md-qr",
+    "multi-device-qr",
+    "whiskey sockets/baileys",
+    "md-pair",
+    "bot-pair",
+    "baileysQrScanner",
+    "botpairing",
+    "WhatsAppPairing",
+    "LinkDevice"
   ],
   "author": "GlobalTechInfo",
   "license": "MIT",
   "dependencies": {
-  "@hapi/boom": "^10.0.1",
-  "@whiskeysockets/baileys": "^7.0.0-rc.9",
-  "awesome-phonenumber": "7.2.0",
-  "dotenv": "^16.4.7",
-  "fs-extra": "^11.3.0",
-  "node-fetch": "^3.3.2",
-  "pastebin-api": "^7.0.0",
-  "pino": "^9.5.0",
-  "phone": "3.1.55",
-  "body-parser": "^1.20.3",
-  "path": "^0.12.7",
-  "express": "^4.21.2",
-  "qrcode": "^1.5.4",
-  "qrcode-terminal": "^0.12.0"
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "^7.0.0-rc.9",
+    "awesome-phonenumber": "7.2.0",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fs-extra": "^11.3.0",
+    "node-fetch": "^3.3.2",
+    "path": "^0.12.7",
+    "phone": "3.1.55",
+    "pino": "^9.5.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0"
   }
 }
