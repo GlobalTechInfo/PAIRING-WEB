@@ -5,7 +5,7 @@
   "description": "A multi-functional WhatsApp bot Pairing Web and QR Scanner.",
   "main": "index.js",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.x"
   },
   "scripts": {
     "start": "node index.js",
@@ -44,7 +44,7 @@
   "license": "MIT",
   "dependencies": {
     "@hapi/boom": "^10.0.1",
-    "@whiskeysockets/baileys": "^7.0.0-rc13",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "awesome-phonenumber": "7.2.0",
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.7",
@@ -56,5 +56,14 @@
     "pino": "^9.5.0",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0"
+  },
+  "overrides": {
+    "sharp": "^0.35.3"
+  },
+  "allowScripts": {
+    "protobufjs@7.6.5": true,
+    "better-sqlite3@12.6.2": true,
+    "sharp@0.35.3": true,
+    "@whiskeysockets/baileys@7.0.0-rc14": true
   }
 }
